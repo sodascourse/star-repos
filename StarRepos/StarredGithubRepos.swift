@@ -9,6 +9,7 @@
 import Alamofire
 import ObjectMapper
 import AlamofireObjectMapper
+import Foundation
 
 struct GithubRepo {
     let name: String
@@ -64,4 +65,61 @@ struct StarredGithubRepoCollection {
             completion(repos: response.result.value)
         }
     }
+
+    // MARK: Local cache
+
+    /*
+     * Use NSUserDefaults
+     */
+    /*
+    static let LastSearchedUserNameUserDefaultsKey = "tw.sodas.StarRepos.last-searched-user-name"
+    static var lastSearchedUserName: String? {
+        get {
+            return NSUserDefaults.standardUserDefaults()
+                .stringForKey(StarredGithubRepoCollection.LastSearchedUserNameUserDefaultsKey)
+        }
+        set(newValue) {
+            NSUserDefaults.standardUserDefaults().setObject(newValue,
+                forKey: StarredGithubRepoCollection.LastSearchedUserNameUserDefaultsKey)
+        }
+    }
+     */
+
+    /*
+     * Use File system
+     */
+    static var lastSearchedUserNameStoragePath: String {
+        // Get library path
+        let libPath = NSSearchPathForDirectoriesInDomains(.LibraryDirectory, .UserDomainMask, true).first!
+        // Check existence
+        if !NSFileManager.defaultManager().fileExistsAtPath(libPath) {
+            do {
+                try NSFileManager.defaultManager().createDirectoryAtPath(libPath,
+                                                                         withIntermediateDirectories: true,
+                                                                         attributes: nil)
+            } catch {
+                NSLog("Cannot create library folder for user ...")
+                fatalError()
+            }
+        }
+        return (libPath as NSString).stringByAppendingPathComponent("last-searched-user-name.txt")
+    }
+    static var lastSearchedUserName: String? {
+        get {
+            do {
+                return try NSString(contentsOfFile: StarredGithubRepoCollection.lastSearchedUserNameStoragePath,
+                                    encoding: NSUTF8StringEncoding) as String?
+            } catch {
+                return nil
+            }
+        }
+        set(newValue) {
+            do {
+                try newValue?.writeToFile(StarredGithubRepoCollection.lastSearchedUserNameStoragePath,
+                                          atomically: true, encoding: NSUTF8StringEncoding)
+            } catch {
+            }
+        }
+    }
+
 }

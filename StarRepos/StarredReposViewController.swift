@@ -43,7 +43,18 @@ class StarredReposViewController: UITableViewController, UITextFieldDelegate {
                 }
                 // Update data
                 self.repos = repos
+                // Save for last searched username
+                StarredGithubRepoCollection.lastSearchedUserName = repoCollection.username
             }
+        }
+    }
+
+    // MARK: - Lifecycle
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        if let lastSearchedUserName = StarredGithubRepoCollection.lastSearchedUserName {
+            self.repoCollection = StarredGithubRepoCollection(username: lastSearchedUserName)
         }
     }
 
