@@ -22,14 +22,14 @@ class StarredReposViewController: UITableViewController, UITextFieldDelegate {
             // Check the existence of newRepos
             guard let repoCollection = self.repoCollection else {
                 self.tableView.reloadData()
+                self.navigationItem.title = "Starred Repos"
                 return
             }
             // Ask the newRepos to fetch new data
+            self.navigationItem.title = "Starred by \(repoCollection.username)"
+            self.navigationItem.titleView = self.searchingIndicator
             repoCollection.fetch { (resultRepos: [GithubRepo]?) in
-                // Clear the loading indicator
-                defer {
-                    self.navigationItem.titleView = nil
-                }
+                self.navigationItem.titleView = nil
                 // Check data
                 guard let repos = resultRepos else {
                     // Prompt an alert
@@ -102,11 +102,8 @@ class StarredReposViewController: UITableViewController, UITextFieldDelegate {
             self.navigationItem.titleView = nil
             // Update the title of this view controller and the model
             if let searchUsername = textField.text where textField.text?.characters.count > 0 {
-                self.navigationItem.title = "Starred by \(searchUsername)"
-                self.navigationItem.titleView = self.searchingIndicator
                 self.repoCollection = StarredGithubRepoCollection(username: searchUsername)
             } else {
-                self.navigationItem.title = "Starred Repos"
                 self.repoCollection = nil
             }
         }
